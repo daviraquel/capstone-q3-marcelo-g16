@@ -1,21 +1,24 @@
-from sqlalchemy import ForeignKey, Column, Integer # importar tipagens necessárias Integer, String, etc
-from sqlalchemy.orm import backref, relationship
-from app.configs.database import db
 from dataclasses import dataclass
 
-#importar outros models relacionados
-#from app.models.outro_model import OutroModel
+from app.configs.database import db
+from sqlalchemy import Column, ForeignKey, Integer, Numeric, String
+from sqlalchemy.orm import backref, relationship
 
 
 @dataclass
 class SalesModel(db.Model):
     id: int
-    #estabelecer relações de tipo para serialização dataclass
+    seller: str
+    buyer: str
+    item: float
+    value: float
 
-    __tablename__ = "sales" #mudar nome da tabela
+    __tablename__ = "sales"
 
     id = Column(Integer, primary_key=True)
-    #construção da tabela, adicionar foreign keys ao final
+    seller = Column(String(50), ForeignKey("users.user_name"), nullable=False)
+    buyer = Column(String(50), ForeignKey("users.user_name"), nullable=False)
+    item = Column(Numeric, ForeignKey("nfts.id"), nullable=False)
+    value = Column(Numeric, nullable=False)
 
-    #adicionar relacionamento
-    #outro = relationship("OutroModel",backref(...))
+    nfts = relationship("NftsModel", backref="nfts")
