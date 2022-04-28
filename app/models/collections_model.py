@@ -9,6 +9,7 @@ from sqlalchemy.orm import backref, relationship
 #from app.models.outro_model import OutroModel
 
 
+
 @dataclass
 class CollectionsModel(db.Model):
     id: int
@@ -19,7 +20,7 @@ class CollectionsModel(db.Model):
     __tablename__ = "collections" 
     id = Column(Integer, primary_key=True)
     name = Column(String(120), nullable=False, unique=True)
-    description = Column(String(250), nullable=False)
+    description = Column(String(250))
 
     #adicionar relacionamento
     #outro = relationship("OutroModel",backref(...))
