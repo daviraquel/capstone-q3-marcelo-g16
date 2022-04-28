@@ -1,5 +1,6 @@
 from app.configs.database import db
 
+
 categories_collections = db.Table('categories_collections',
     db.Column('id', db.Integer, primary_key=True),
     # Coluna primeira referência

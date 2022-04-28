@@ -1,8 +1,10 @@
-from sqlalchemy import ForeignKey, Column, Integer # importar tipagens necessárias Integer, String, etc
-from sqlalchemy.orm import backref, relationship
-from app.configs.database import db
 from dataclasses import dataclass
 
+from app.configs.database import db
+from sqlalchemy import (  # importar tipagens necessárias Integer, String, etc
+    Column, DateTime, ForeignKey, Integer, String)
+from sqlalchemy.orm import backref, relationship
+from datetime import datetime
 #importar outros models relacionados
 #from app.models.outro_model import OutroModel
 
@@ -10,12 +12,22 @@ from dataclasses import dataclass
 @dataclass
 class UsersModel(db.Model):
     id: int
-    #estabelecer relações de tipo para serialização dataclass
+    user_name:str
+    email:str
+    create_date:str
+    update_date:str
 
-    __tablename__ = "users" #mudar nome da tabela
+
+    now = datetime.utcnow
+    __tablename__ = "users" 
 
     id = Column(Integer, primary_key=True)
-    #construção da tabela, adicionar foreign keys ao final
+    user_name = Column(String(50), nullable=False, unique=True)
+    email = Column(String(50), nullable=False, unique=True)
+    password = Column(String(20), nullable=False)
+    create_date = Column(DateTime, default=now)
+    update_date = Column(DateTime)
+    
 
     #adicionar relacionamento
     #outro = relationship("OutroModel",backref(...))
