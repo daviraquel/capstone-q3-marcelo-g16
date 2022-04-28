@@ -1,21 +1,26 @@
-from sqlalchemy import ForeignKey, Column, Integer # importar tipagens necessárias Integer, String, etc
-from sqlalchemy.orm import backref, relationship
-from app.configs.database import db
 from dataclasses import dataclass
+
+from app.configs.database import db
+from sqlalchemy import (  # importar tipagens necessárias Integer, String, etc
+    Column, ForeignKey, Integer, String)
+from sqlalchemy.orm import backref, relationship
 
 #importar outros models relacionados
 #from app.models.outro_model import OutroModel
 
 
+
 @dataclass
 class CollectionsModel(db.Model):
     id: int
-    #estabelecer relações de tipo para serialização dataclass
+    name:str
+    description:str
 
-    __tablename__ = "collections" #mudar nome da tabela
 
+    __tablename__ = "collections" 
     id = Column(Integer, primary_key=True)
-    #construção da tabela, adicionar foreign keys ao final
+    name = Column(String(120), nullable=False, unique=True)
+    description = Column(String(250))
 
     #adicionar relacionamento
     #outro = relationship("OutroModel",backref(...))
