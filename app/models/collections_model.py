@@ -18,7 +18,7 @@ class CollectionsModel(db.Model):
 
     __tablename__ = "collections" 
     id = Column(Integer, primary_key=True)
-    name = Column(String(120), nullable=False)
+    name = Column(String(120), nullable=False, unique=True)
     description = Column(String(250), nullable=False)
 
     #adicionar relacionamento
