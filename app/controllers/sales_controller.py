@@ -15,11 +15,7 @@ def create_sale():
     try:
         data = request.get_json()
         missing_fields = [key for key in fields if key not in data.keys()]
-        wrong_fields = set_wrong_fields(
-            data,
-            fields[:2],
-            [fields[2]],
-        )
+        wrong_fields = set_wrong_fields(data, [], fields[:3])
 
         if missing_fields:
             raise KeyError
@@ -61,17 +57,13 @@ def update_sale(id):
 
     data = request.get_json()
     not_allowed_fields = only_allowed_fields(data, fields)
-    wrong_fields = set_wrong_fields(
-        data,
-        fields[:2],
-        [fields[2]],
-    )
+    wrong_fields = set_wrong_fields(data, [], fields[:3])
 
     if not_allowed_fields:
         return not_allowed_fields, HTTPStatus.BAD_REQUEST
 
     elif wrong_fields:
-        return {"wrong_fields": wrong_fields}, HTTPStatus.BAD_REQUEST
+        return {"wrong_fields": wrong_fields}, HTTPStatus.BAD_REQUESTfields[:2]
 
     SalesModel.query.filter_by(id=id).update(data)
 
