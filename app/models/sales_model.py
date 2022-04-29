@@ -8,16 +8,16 @@ from sqlalchemy.orm import backref, relationship
 @dataclass
 class SalesModel(db.Model):
     id: int
-    seller: str
-    buyer: str
+    seller: int
+    buyer: int
     item: int
     value: float
 
     __tablename__ = "sales"
 
     id = Column(Integer, primary_key=True)
-    seller = Column(String(50), ForeignKey("users.user_name"), nullable=False)
-    buyer = Column(String(50), ForeignKey("users.user_name"), nullable=False)
+    seller = Column(Integer, ForeignKey("users.id"), nullable=False)
+    buyer = Column(Integer, ForeignKey("users.id"), nullable=False)
     item = Column(Integer, ForeignKey("nfts.id"), nullable=False)
     value = Column(Numeric, nullable=False)
 
