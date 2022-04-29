@@ -4,9 +4,7 @@ from app.configs.database import db
 from sqlalchemy import (  # importar tipagens necessárias Integer, String, etc
     Column, ForeignKey, Integer, String)
 from sqlalchemy.orm import backref, relationship
-
-#importar outros models relacionados
-#from app.models.outro_model import OutroModel
+from app.models.categories_collections_table import categories_collections
 
 
 
@@ -23,4 +21,5 @@ class CollectionsModel(db.Model):
     description = Column(String(250))
 
     #adicionar relacionamento
+    categories = relationship('CategoriesModel', secondary = categories_collections, backref='collections')
     #outro = relationship("OutroModel",backref(...))
