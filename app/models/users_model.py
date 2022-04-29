@@ -16,6 +16,7 @@ class UsersModel(db.Model):
     email:str
     create_date:str
     update_date:str
+    
 
 
     now = datetime.utcnow

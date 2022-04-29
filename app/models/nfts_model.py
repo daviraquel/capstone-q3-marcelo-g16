@@ -1,3 +1,4 @@
+from collections import UserList
 from sqlalchemy import Boolean, ForeignKey, Column, Integer, Numeric, String, Date
 from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
@@ -13,15 +14,16 @@ from app.models.users_model import UsersModel
 class NftsModel(db.Model):
     
     id: int
-    creator: str
+    creator: int
     owner: int
     name:str
     for_sale:bool
     value:float
     description:str
-    collection = int
-    image = str
-    created_at = str
+    collection: int
+    image: str
+    created_at: str
+    creator_info:str
 
 
     __tablename__ = "nfts" 
@@ -37,5 +39,5 @@ class NftsModel(db.Model):
     image = Column(String)
     created_at = Column(Date, default=datetime.now())
 
-    creator = relationship("UsersModel", backref=backref('nfts', uselist=True), uselist=False)
+    creator_info = relationship("UsersModel", foreign_keys=[creator], backref='nfts')
     
