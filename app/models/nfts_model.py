@@ -1,10 +1,12 @@
-from collections import UserList
-from sqlalchemy import Boolean, Date, ForeignKey, Column, Integer, Numeric, String
-from sqlalchemy.orm import backref, relationship
-from app.configs.database import db
 from dataclasses import dataclass
 from datetime import datetime
+
+from app.configs.database import db
 from app.models.users_model import UsersModel
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
+                        Numeric, String)
+from sqlalchemy.orm import backref, relationship
+
 
 @dataclass
 class NftsModel(db.Model):
@@ -32,8 +34,8 @@ class NftsModel(db.Model):
     value = Column(Numeric, nullable=False)
     description = Column(String(50), nullable=False)
     collection = Column(Integer, ForeignKey('collections.id'), nullable=False)
-    image = Column(String)
-    created_at = Column(Date, default=datetime.now())
+    image = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.now())
 
     creator_info = relationship("UsersModel", foreign_keys=[creator], backref='nfts')
     
