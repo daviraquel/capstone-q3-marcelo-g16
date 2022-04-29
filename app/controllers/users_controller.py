@@ -54,9 +54,9 @@ def update_user(user_email:str):
   data = request.get_json()
   data['email'] = data['email'].lower()
 
-  # now = datetime.utcnow
-  # print('*'*100, now)
-  # data['update_date'] = now
+  now = datetime.utcnow()
+  print('*'*100, now)
+  data['update_date'] = now
 
   selected_user = session.query(UsersModel).filter(UsersModel.email==user_email).first()
   if not selected_user:
