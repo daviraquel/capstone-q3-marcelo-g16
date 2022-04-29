@@ -1,8 +1,8 @@
-"""initial migration
+"""criação das tabelas
 
-Revision ID: e800f1cc90d8
+Revision ID: 6013e4ec2c1c
 Revises: 
-Create Date: 2022-04-28 11:51:20.658384
+Create Date: 2022-04-29 12:57:30.185151
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e800f1cc90d8'
+revision = '6013e4ec2c1c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -52,6 +52,7 @@ def upgrade():
     )
     op.create_table('nfts',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('creator', sa.Integer(), nullable=False),
     sa.Column('owner', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('for_sale', sa.Boolean(), nullable=False),
@@ -61,6 +62,7 @@ def upgrade():
     sa.Column('image', sa.String(), nullable=True),
     sa.Column('created_at', sa.Date(), nullable=True),
     sa.ForeignKeyConstraint(['collection'], ['collections.id'], ),
+    sa.ForeignKeyConstraint(['creator'], ['users.id'], ),
     sa.ForeignKeyConstraint(['owner'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
