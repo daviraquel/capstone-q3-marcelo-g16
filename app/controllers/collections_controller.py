@@ -26,6 +26,8 @@ def create_collection():
 
   return jsonify(new_collection), 201
 
+
+#========================================================================================
 def read_collections():
   session:Session = db.session
 
@@ -36,6 +38,8 @@ def read_collections():
 
   return jsonify(collections), 200
 
+
+#========================================================================================
 def read_collection(name):
   session:Session = db.session
 
@@ -46,6 +50,8 @@ def read_collection(name):
 
   return jsonify(collection), 200
 
+
+#========================================================================================
 def update_collection(name):
   session:Session = db.session
   data = request.get_json()
@@ -69,6 +75,8 @@ def update_collection(name):
   except KeyError:
     return {'msg':{'expected key':'description', 'entry keys':keys}}
 
+
+#========================================================================================
 def delete_collection(name):
   session:Session = db.session
   
