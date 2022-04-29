@@ -8,7 +8,7 @@ bp = Blueprint("bp_users", __name__, url_prefix="/users")
 
 # declarar métodos
 bp.post("")(create_user)
-bp.get("")(read_user)
-bp.get("/<int:id>")(read_users)
-bp.patch("/<int:id>")(update_user)
-bp.delete("/<int:id>")(delete_user)
+bp.get("/<user_email>")(read_user)
+bp.get("")(read_users)
+bp.patch("//<user_email>")(update_user)
+bp.delete("/<user_email>")(delete_user)

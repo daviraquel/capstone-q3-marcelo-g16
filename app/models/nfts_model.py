@@ -3,6 +3,7 @@ from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
 from dataclasses import dataclass
 from datetime import datetime
+from app.models.users_model import UsersModel
 
 #importar outros models relacionados
 #from app.models.outro_model import OutroModel
@@ -36,5 +37,5 @@ class NftsModel(db.Model):
     image = Column(String)
     created_at = Column(Date, default=datetime.now())
 
-    creator = relationship("UserModel", backref=backref('nfts', uselist=True), uselist=False)
+    creator = relationship("UsersModel", backref=backref('nfts', uselist=True), uselist=False)
     
