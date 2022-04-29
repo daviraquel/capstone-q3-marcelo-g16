@@ -36,5 +36,5 @@ class NftsModel(db.Model):
     image = Column(String)
     created_at = Column(Date, default=datetime.now())
 
-    creator = relationship("UserModel", backref=backref('nfts', uselist=True), uselist=False)
+    creator = relationship("UsersModel", backref=backref('nfts', uselist=True), uselist=False)
     
