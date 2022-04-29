@@ -8,7 +8,7 @@ bp = Blueprint("bp_collections", __name__, url_prefix="/collections")
 
 # declarar métodos
 bp.post("")(create_collection)
-bp.get("")(read_collection)
-bp.get("/<int:id>")(read_collections)
-bp.patch("/<int:id>")(update_collection)
-bp.delete("/<int:id>")(delete_collection)
+bp.get("")(read_collections)
+bp.get("/<name>")(read_collection)
+bp.patch("/<name>")(update_collection)
+bp.delete("/<name>")(delete_collection)
