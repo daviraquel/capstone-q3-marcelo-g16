@@ -3,6 +3,7 @@ from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
 from dataclasses import dataclass
 from datetime import datetime
+from app.models.users_model import UsersModel
 
 #importar outros models relacionados
 #from app.models.outro_model import OutroModel
