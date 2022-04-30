@@ -5,6 +5,7 @@ from sqlalchemy import (  # importar tipagens necessárias Integer, String, etc
     Column, DateTime, ForeignKey, Integer, String)
 from sqlalchemy.orm import backref, relationship
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 #importar outros models relacionados
 #from app.models.outro_model import OutroModel
 
@@ -32,3 +33,15 @@ class UsersModel(db.Model):
 
     #adicionar relacionamento
     #outro = relationship("OutroModel",backref(...))
+    @property
+    def inserted_password(self):
+        raise AttributeError("You dont't have access to the password")
+
+    @inserted_password.setter
+    def inserted_password(self, password_to_hash):
+        self.password = generate_password_hash(password_to_hash)
+
+
+    def check_password(self, password_to_compare):
+        
+        return check_password_hash(self.password, password_to_compare)
