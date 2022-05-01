@@ -20,7 +20,12 @@ def create_user():
   if not expected_keys==entry_keys:
     return {'msg':{'expected keys':expected_keys, 'entry keys':entry_keys}}, 400
 
+  user = UsersModel(**data)
+  user.inserted_password = data['password']
 
+  data['password']=user.password
+
+  print('@'*100, data, user.password)
   new_user = UsersModel(**data)
   
   try:
