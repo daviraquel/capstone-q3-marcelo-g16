@@ -16,7 +16,7 @@ class UsersModel(db.Model):
     user_name:str
     email:str
     create_date:str
-    update_date:str
+    last_update:str
     
 
 
@@ -26,9 +26,9 @@ class UsersModel(db.Model):
     id = Column(Integer, primary_key=True)
     user_name = Column(String(50), nullable=False, unique=True)
     email = Column(String(50), nullable=False, unique=True)
-    password = Column(String(20), nullable=False)
+    password = Column(String(120), nullable=False)
     create_date = Column(DateTime, default=now)
-    update_date = Column(DateTime)
+    last_update = Column(DateTime, default=now)
     
 
     #adicionar relacionamento
