@@ -6,85 +6,140 @@ from sqlalchemy.exc import DataError, ProgrammingError, IntegrityError
 from psycopg2.errors import ForeignKeyViolation, NotNullViolation
 from http import HTTPStatus
 from copy import deepcopy
+from flask_jwt_extended import get_jwt_identity, jwt_required
+
 
 session: Session = db.session
 
+
+@jwt_required()
 def create_nft():
-  try:
+    user = get_jwt_identity()
     data = request.get_json()
 
-    data['description'] = data['description'].lower()
+    expected_keys = ["name", "value", "for_sale", "description", "image", "collection"]
+    entry_keys = [k for k in data.keys()]
 
-    new_nft = NftsModel(**data)
+    try:
+        for key in entry_keys:
+            if key not in expected_keys:
+                raise KeyError
 
-    session.add(new_nft)
-    session.commit()
+        data["description"] = data["description"].lower()
 
-    return jsonify(new_nft), HTTPStatus.OK
-  except IntegrityError as e:
-    if type(e.orig) == ForeignKeyViolation:
-      return {"error": "insert a creator, owner or collection that is already registered."}, HTTPStatus.BAD_REQUEST
-    if type(e.orig) == NotNullViolation:
-      acepted_keys = ['creator', 'owner','name','value', 'for_sale','description', 'image', 'collection']
-      missing_keys = deepcopy(acepted_keys)
-      for key in data.keys():
-        if key in acepted_keys:
-          missing_keys.remove(key)
-      return {"error": {"mandatory keys": acepted_keys, 'missing keys': missing_keys}}, HTTPStatus.BAD_REQUEST
+        data["creator"] = user["id"]
+        data["owner"] = user["id"]
+
+        new_nft = NftsModel(**data)
+
+        session.add(new_nft)
+        session.commit()
+
+        return jsonify(new_nft), HTTPStatus.OK
+    except IntegrityError as e:
+        if type(e.orig) == ForeignKeyViolation:
+            return {
+                "error": "insert a collection already registered."
+            }, HTTPStatus.BAD_REQUEST
+        return {
+            "error": "wrong keys",
+            "expected_keys": expected_keys,
+        }, HTTPStatus.BAD_REQUEST
+
+    except KeyError:
+        wrong_keys = []
+        for key in entry_keys:
+            if key not in expected_keys:
+                wrong_keys.append(key)
+        return {
+            "error": "wrong keys",
+            "expected_keys": expected_keys,
+            "wrong_keys": wrong_keys,
+        }, HTTPStatus.BAD_REQUEST
+
 
 ##################################################################################################################
 def read_nfts():
-  try:
-    read_all = session.query(NftsModel).all()
-  
-    return jsonify(read_all),HTTPStatus.OK
-  except: 
-    return [], HTTPStatus.OK
+    try:
+        read_all = session.query(NftsModel).all()
+
+        return jsonify(read_all), HTTPStatus.OK
+    except:
+        return [], HTTPStatus.OK
+
 
 ##################################################################################################################
 def read_nft(id):
-  read_one = session.query(NftsModel).filter(NftsModel.id == id).first()
-  if read_one:
-    session.commit()
-    return jsonify(read_one), HTTPStatus.OK
-  else:
-    return {"error": f"ntf id {id} not found"}, HTTPStatus.BAD_REQUEST
+    read_one = session.query(NftsModel).filter(NftsModel.id == id).first()
+    if read_one:
+        session.commit()
+        return jsonify(read_one), HTTPStatus.OK
+    else:
+        return {"error": f"ntf id {id} not found"}, HTTPStatus.NOT_FOUND
+
 
 ##################################################################################################################
+@jwt_required()
 def update_nft(id):
-  try:
-    data = request.get_json()
-    acepted_keys = ['value', 'for_sale','description', 'image']
-    wrong_keys = []
+    user = get_jwt_identity()
+    try:
+        data = request.get_json()
 
-    for key in data.keys():
-      if key != 'value' and key != 'for_sale' and key != 'description' and key != 'image': 
-        wrong_keys.append(key)
-        raise KeyError
+        acepted_keys = ["value", "for_sale", "description", "image"]
+        wrong_keys = []
 
-    wanted_nft = session.query(NftsModel).get(id)
-    for key, value in data.items():
-      setattr(wanted_nft,key,value)
+        if not data:
+            raise KeyError
 
-    session.add(wanted_nft)
-    session.commit()
+        for key in data.keys():
+            if (
+                key != "value"
+                and key != "for_sale"
+                and key != "description"
+                and key != "image"
+            ):
+                wrong_keys.append(key)
+                raise KeyError
 
-    return jsonify(wanted_nft), HTTPStatus.CREATED
+        wanted_nft = session.query(NftsModel).get(id)
+        for key, value in data.items():
+            setattr(wanted_nft, key, value)
 
-  except KeyError:
-    return {'error': {'correct keys': acepted_keys, 'received': wrong_keys}}, HTTPStatus.BAD_REQUEST
-  except AttributeError:
-    return {'error': f'nft id {id} not foud'}, HTTPStatus.BAD_REQUEST
-  except (DataError, ProgrammingError):
-    return {'error': f'correct the values passed'},HTTPStatus.BAD_REQUEST      
+        if user["id"] != wanted_nft.creator_info.id:
+            return {
+                "detail": "only the creator of the NFT can update"
+            }, HTTPStatus.UNAUTHORIZED
+
+        session.add(wanted_nft)
+        session.commit()
+
+        return jsonify(wanted_nft), HTTPStatus.CREATED
+
+    except KeyError:
+        return {
+            "error": {"expected_keys": acepted_keys, "received": wrong_keys}
+        }, HTTPStatus.BAD_REQUEST
+    except AttributeError:
+        return {"error": f"nft id {id} not found"}, HTTPStatus.NOT_FOUND
+    except (DataError, ProgrammingError):
+        return {"error": f"correct the values passed"}, HTTPStatus.BAD_REQUEST
+
 
 ##################################################################################################################
+@jwt_required()
 def delete_nft(id):
-  try:
-    delete_one = session.query(NftsModel).get(id)
-    session.delete(delete_one)
-    session.commit()
+    user = get_jwt_identity()
+    try:
+        delete_one = session.query(NftsModel).get(id)
 
-    return "", HTTPStatus.NO_CONTENT
-  except:
-    return {'error': f'nft id {id} not found'}, HTTPStatus.BAD_REQUEST
+        if user["id"] != delete_one.creator_info.id:
+            return {
+                "detail": "only the creator of the NFT can delete"
+            }, HTTPStatus.UNAUTHORIZED
+
+        session.delete(delete_one)
+        session.commit()
+
+        return "", HTTPStatus.NO_CONTENT
+    except:
+        return {"error": f"nft id {id} not found"}, HTTPStatus.NOT_FOUND
