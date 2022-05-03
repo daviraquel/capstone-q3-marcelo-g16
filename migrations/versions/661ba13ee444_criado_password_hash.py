@@ -1,7 +1,7 @@
 """criado password hash
 
 Revision ID: 661ba13ee444
-Revises: e800f1cc90d8
+Revises: 7365130273fb
 Create Date: 2022-05-02 19:29:45.674917
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "661ba13ee444"
-down_revision = "e800f1cc90d8"
+down_revision = "7365130273fb"
 branch_labels = None
 depends_on = None
 

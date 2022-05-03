@@ -9,42 +9,39 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 
 
 def create_user():
-  session:Session = db.session
-  
-  data = request.get_json()
+    session: Session = db.session
 
-  expected_keys = ['user_name', 'email', 'password']
-  entry_keys = [k for k in data.keys()]  
-  try:
-    for key in entry_keys:
-      if key not in expected_keys:
-        raise KeyError
-  except:
-    wrong_keys = []
-    for key in entry_keys:
-      if key not in expected_keys:
-        wrong_keys.append(key)
-    return {"error": "wrong keys",
+    data = request.get_json()
+
+    expected_keys = ["user_name", "email", "password"]
+    entry_keys = [k for k in data.keys()]
+    try:
+        for key in entry_keys:
+            if key not in expected_keys:
+                raise KeyError
+    except:
+        wrong_keys = []
+        for key in entry_keys:
+            if key not in expected_keys:
+                wrong_keys.append(key)
+        return {
+            "error": "wrong keys",
             "expected_keys": expected_keys,
-            "wrong_keys": wrong_keys}, 400
+            "wrong_keys": wrong_keys,
+        }, 400
 
-  data['user_name'] = data['user_name'].title()
-  data['email'] = data['email'].lower() 
-  
-  user = UsersModel(**data)
-  user.inserted_password = data['password']
+    data["user_name"] = data["user_name"].title()
+    data["email"] = data["email"].lower()
 
-  data['password']=user.password
+    new_user = UsersModel(**data)
+    try:
 
-  new_user = UsersModel(**data)
-  try:
-
-      db.session.add(new_user)
-      db.session.commit()
-  except IntegrityError as e:
-      if type(e.orig) == UniqueViolation:
-          return {"Error": "Username or email already in database"}, 409
-  return jsonify(new_user), 201
+        db.session.add(new_user)
+        db.session.commit()
+    except IntegrityError as e:
+        if type(e.orig) == UniqueViolation:
+            return {"Error": "Username or email already in database"}, 409
+    return jsonify(new_user), 201
 
 
 # ========================================================================================
@@ -75,45 +72,49 @@ def read_user():
 
 # ========================================================================================
 @jwt_required()
-def update_user(user_email:str):
-  session:Session = db.session
-  data = request.get_json()
+def update_user():
+    session: Session = db.session
+    data = request.get_json()
 
-  updatable_data = ['email', 'password', 'update_date']
-  entry_keys = [k for k in data.keys()]  
-  try:
-    for key in entry_keys:
-      if key not in updatable_data:
-        raise KeyError
-  except:
-    wrong_keys = []
-    for key in entry_keys:
-      if key not in updatable_data:
-        wrong_keys.append(key)
-    return {"error": "data is not updatable",
+    updatable_data = ["email", "password", "update_date"]
+    entry_keys = [k for k in data.keys()]
+    try:
+        for key in entry_keys:
+            if key not in updatable_data:
+                raise KeyError
+    except:
+        wrong_keys = []
+        for key in entry_keys:
+            if key not in updatable_data:
+                wrong_keys.append(key)
+        return {
+            "error": "data is not updatable",
             "updatable_data": updatable_data,
-            "wrong_keys": wrong_keys}, 400
+            "wrong_keys": wrong_keys,
+        }, 400
 
-  data['email'] = data['email'].lower()
+    data["email"] = data["email"].lower()
 
-  now = datetime.utcnow()
-  print('*'*100, now)
-  data['update_date'] = now
+    now = datetime.utcnow()
+    print("*" * 100, now)
+    data["update_date"] = now
 
-  user = get_jwt_identity()
-  selected_user = UsersModel.query.get(user["id"])
-  if not selected_user:
-    return{'Error':'User not found'}, 404
-  
-  for key, value in data.items():
-    setattr(selected_user, key, value)
-  
-  try:
-    session.add(selected_user)
-    session.commit()
-  except IntegrityError as e:
-    if type(e.orig == UniqueViolation):
-      return{'Error':'Email already exists'}, 409
+    user = get_jwt_identity()
+    selected_user = UsersModel.query.get(user["id"])
+    if not selected_user:
+        return {"Error": "User not found"}, 404
+
+    for key, value in data.items():
+        setattr(selected_user, key, value)
+
+    try:
+        session.add(selected_user)
+        session.commit()
+    except IntegrityError as e:
+        if type(e.orig == UniqueViolation):
+            return {"Error": "Email already exists"}, 409
+
+    return jsonify(selected_user), 200
 
 
 # ========================================================================================
@@ -140,7 +141,9 @@ def login_user():
 
     user: UsersModel = UsersModel.query.filter_by(email=data["email"]).first()
 
-    if not user or not user.check_password(data["password"]):
+    if not user:
+        return {"detail": "this email is not registered"}, 404
+    if not user.check_password(data["password"]):
         return {"detail": "email and password missmatch"}, 401
 
     token = create_access_token(user, expires_delta=timedelta(minutes=30))
