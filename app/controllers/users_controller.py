@@ -4,7 +4,8 @@ from flask import jsonify, request
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 
 def create_user():
@@ -38,37 +39,42 @@ def create_user():
   new_user = UsersModel(**data)
   try:
 
-    db.session.add(new_user)
-    db.session.commit()
+      db.session.add(new_user)
+      db.session.commit()
   except IntegrityError as e:
-    if type(e.orig) == UniqueViolation:
-      return {'Error':'Username or email already in database'}, 409
+      if type(e.orig) == UniqueViolation:
+          return {"Error": "Username or email already in database"}, 409
   return jsonify(new_user), 201
 
 
-#========================================================================================
+# ========================================================================================
+@jwt_required()
 def read_users():
-  session:Session = db.session
-  users_list = session.query(UsersModel).all()
+    session: Session = db.session
+    users_list = session.query(UsersModel).all()
 
-  if users_list == []:
-        return{'Error':'There are no users on database'}, 404
+    if users_list == []:
+        return {"Error": "There are no users on database"}, 404
 
-  return jsonify(users_list), 200
-
-
-#========================================================================================
-def read_user(user_email:str):
-  session:Session = db.session
-
-  selected_user = session.query(UsersModel).filter(UsersModel.email==user_email.lower()).first()
-  if not selected_user:
-    return{'Error':'User not found'}, 404
-  
-  return jsonify(selected_user)
+    return jsonify(users_list), 200
 
 
-#========================================================================================
+# ========================================================================================
+@jwt_required()
+def read_user():
+    session: Session = db.session
+
+    user = get_jwt_identity()
+    selected_user = UsersModel.query.get(user["id"])
+
+    if not selected_user:
+        return {"Error": "User not found"}, 404
+
+    return jsonify(selected_user)
+
+
+# ========================================================================================
+@jwt_required()
 def update_user(user_email:str):
   session:Session = db.session
   data = request.get_json()
@@ -94,7 +100,8 @@ def update_user(user_email:str):
   print('*'*100, now)
   data['update_date'] = now
 
-  selected_user = session.query(UsersModel).filter(UsersModel.email==user_email.lower()).first()
+  user = get_jwt_identity()
+  selected_user = UsersModel.query.get(user["id"])
   if not selected_user:
     return{'Error':'User not found'}, 404
   
@@ -107,17 +114,35 @@ def update_user(user_email:str):
   except IntegrityError as e:
     if type(e.orig == UniqueViolation):
       return{'Error':'Email already exists'}, 409
-      
-  return jsonify(selected_user), 200
 
 
-#========================================================================================
-def delete_user(user_email:str):
-  session:Session = db.session
-  selected_user = session.query(UsersModel).filter(UsersModel.email==user_email).first()
-  if not selected_user:
-    return{'Error':'User not found'}, 404
-  session.delete(selected_user)
-  session.commit()
+# ========================================================================================
+@jwt_required()
+def delete_user():
+    session: Session = db.session
 
-  return "", 204
+    user = get_jwt_identity()
+
+    selected_user = UsersModel.query.get(user["id"])
+
+    if selected_user:
+        session.delete(selected_user)
+        session.commit()
+
+        return "", 204
+
+    return {"Error": "User not found"}, 404
+
+
+# ========================================================================================
+def login_user():
+    data = request.get_json()
+
+    user: UsersModel = UsersModel.query.filter_by(email=data["email"]).first()
+
+    if not user or not user.check_password(data["password"]):
+        return {"detail": "email and password missmatch"}, 401
+
+    token = create_access_token(user, expires_delta=timedelta(minutes=30))
+
+    return {"access_token": token}, 200
