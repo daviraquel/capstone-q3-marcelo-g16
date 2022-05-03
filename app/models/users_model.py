@@ -4,7 +4,7 @@ from app.configs.database import db
 from sqlalchemy import (  # importar tipagens necessárias Integer, String, etc
     Column,
     DateTime,
-    ForeignKey,
+    Numeric,
     Integer,
     String,
 )
@@ -21,6 +21,7 @@ class UsersModel(db.Model):
     id: int
     user_name: str
     email: str
+    balance: float
     create_date: str
     update_date: str
 
@@ -31,6 +32,7 @@ class UsersModel(db.Model):
     user_name = Column(String(50), nullable=False, unique=True)
     email = Column(String(50), nullable=False, unique=True)
     password_hash = Column(String(511), nullable=False)
+    balance = Column(Numeric, default=0)
     create_date = Column(DateTime, default=now)
     update_date = Column(DateTime)
 
