@@ -8,6 +8,7 @@ from app.controllers.users_controller import (
     update_user,
     delete_user,
     login_user,
+    deposit_user
 )
 
 # alterar nome e prefixo da blueprint
@@ -20,3 +21,4 @@ bp.get("")(read_users)
 bp.patch("")(update_user)
 bp.delete("")(delete_user)
 bp.post("/signin")(login_user)
+bp.post("/deposit")(deposit_user)

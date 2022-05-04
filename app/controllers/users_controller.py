@@ -149,3 +149,48 @@ def login_user():
     token = create_access_token(user, expires_delta=timedelta(minutes=30))
 
     return {"access_token": token}, 200
+
+# ========================================================================================
+@jwt_required()
+def deposit_user():
+    session: Session = db.session
+
+    data = request.get_json()
+
+    expected_keys = ["value"]
+    entry_keys = [k for k in data.keys()]
+    try:
+        for key in entry_keys:
+            if key not in expected_keys:
+                raise KeyError
+    except:
+        wrong_keys = []
+        for key in entry_keys:
+            if key not in expected_keys:
+                wrong_keys.append(key)
+        return {
+            "error": "wrong keys",
+            "expected_keys": expected_keys,
+            "wrong_keys": wrong_keys,
+        }, 400
+
+    user = get_jwt_identity()
+    selected_user = UsersModel.query.get(user["id"])
+
+    try:
+        value = float(data["value"])
+        new_value = float(selected_user.balance) + value
+        setattr(selected_user, "balance", new_value)
+        now = datetime.utcnow()
+        setattr(selected_user, "last_deposit", now)
+
+        session.add(selected_user)
+        session.commit()
+
+        return {"succes": f"you added {value} to your account, current balance = {selected_user.balance}"}, 200
+    
+    except:
+        return {"error": "invalid value, must be a number"}, 409
+
+
+    
