@@ -34,7 +34,7 @@ class UsersModel(db.Model):
     password_hash = Column(String(511), nullable=False)
     balance = Column(Numeric, default=0)
     create_date = Column(DateTime, default=now)
-    update_date = Column(DateTime)
+    update_date = Column(DateTime, default=now)
 
     # adicionar relacionamento
     # outro = relationship("OutroModel",backref(...))
