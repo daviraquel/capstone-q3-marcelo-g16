@@ -22,6 +22,7 @@ class UsersModel(db.Model):
     user_name: str
     email: str
     balance: float
+    last_deposit: str
     create_date: str
     update_date: str
 
@@ -33,6 +34,7 @@ class UsersModel(db.Model):
     email = Column(String(50), nullable=False, unique=True)
     password_hash = Column(String(511), nullable=False)
     balance = Column(Numeric, default=0)
+    last_deposit = Column(DateTime, default=now)
     create_date = Column(DateTime, default=now)
     update_date = Column(DateTime, default=now)
 
