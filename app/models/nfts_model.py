@@ -11,6 +11,8 @@ from sqlalchemy.orm import backref, relationship
 class NftsModel(db.Model):
 
     id: int
+    creator: int
+    owner: int
     name: str
     for_sale: bool
     value: float
