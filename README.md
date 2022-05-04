@@ -621,3 +621,253 @@ Resposta:
   "error": "nft id 44 not found"
 }
 ```
+
+## POST /collections
+
+Deverá fazer o registro de uma nova collection pela inserção dos dados na tabela collections. A requisição deve contar nome da collection e sua descrição.
+
+Requisição padrão:
+
+```json
+{
+	"name": "teste",
+	"description": "teste"
+}
+```
+
+Resposta:
+**201 - CREATED**
+
+```json
+{
+	"id": 1,
+	"creator": 1,
+	"name": "Teste",
+	"description": "teste"
+}
+```
+
+### **Possíveis erros:**
+
+Objeto com campos faltando ou em excesso.
+
+Formato da requisição:
+
+```json
+{
+	"description": "teste"
+}
+```
+
+Resposta:
+**400 - BAD REQUEST**
+
+```json
+{
+	"msg": {
+		"expected keys": [
+			"name",
+			"description"
+		],
+		"entry keys": [
+			"description"
+		]
+	}
+}
+```
+
+nome da collection já cadastrado.
+
+Resposta:
+**409 - CONFLICT**
+
+```json
+{
+	"Error": "Collection already on database"
+}
+```
+
+## GET /collections
+
+Retorna todos as collections cadastrados na API.
+
+Resposta:
+**200 - OK**
+
+```json
+[
+  {
+    "id": 1,
+    "creator": 1,
+    "name": "Teste",
+    "description": "teste"
+  },
+  {
+    "id": 2,
+    "creator": 2,
+    "name": "Teste 2",
+    "description": "teste 2"
+  }
+]
+```
+
+### **Possíveis erros:**
+
+Sem usuários cadastrados na API.
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+  "Error": "There are no collections on database"
+}
+```
+
+## GET /collections/\<name:str\>
+
+Rota para buscar uma collection específica com base no seu nome.
+
+```
+GET /users/teste
+```
+
+Resposta:
+**200 - OK**
+
+```json
+{
+	"id": 1,
+	"creator": 1,
+	"name": "Teste",
+	"description": "teste"
+}
+```
+
+### **Possíveis erros:**
+
+Nome da collection não cadastrada na API.
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+	"Error": "Collection not found"
+}
+```
+
+## PATCH /collections/\<name:str\>
+
+Rota para alterar a descrição de uma collection.
+
+Requisição padrão:
+
+```
+PATCH /users/teste
+```
+
+```json
+{
+	"description": "mudei a descrição"
+}
+```
+
+Resposta:
+**200 - OK**
+
+```json
+{
+	"id": 1,
+	"creator": 1,
+	"name": "Teste",
+	"description": "mudei a descrição"
+}
+```
+
+### **Possíveis erros:**
+
+Nome não cadastrado na API.
+
+Requisição:
+
+```
+PATCH /users/outronome
+```
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+  "Error": "Collection not found"
+}
+```
+
+O usuario que está tentando alterar não é o dono da collection
+
+Resposta:
+**401 - NOT UNAUTHORIZED**
+
+```json
+{
+	"detail": "only the creator of the collection can update"
+}
+```
+
+Faltando a chave "description" na requisição
+
+Resposta:
+**400 - BAD REQUEST**
+
+```json
+{
+	"msg": {
+		"expected key": "description",
+		"entry keys": []
+	}
+}
+```
+
+## DELETE /collections/\<name:str\>
+
+Rota para deletar os dados de um usuário específico com base no seu email.
+
+Requisição padrão:
+
+```
+DELETE /collections/teste
+```
+
+Resposta:
+**204 - NO CONTENT**
+
+### **Possíveis erros:**
+
+Email não cadastrado na API.
+
+Requisição:
+
+```
+DELETE /users/outronome
+```
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+  "Error": "Collection not found"
+}
+```
+
+O usuario que está tentando deletar não é o dono da collection
+
+Resposta:
+**401 - NOT UNAUTHORIZED**
+
+```json
+{
+	"detail": "only the creator of the collection can delete"
+}
+```
