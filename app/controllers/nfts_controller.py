@@ -71,8 +71,8 @@ def read_nfts():
 ##################################################################################################################
 def read_nft(id):
     read_one = session.query(NftsModel).filter(NftsModel.id == id).first()
+    
     if read_one:
-        session.commit()
         return jsonify(read_one), HTTPStatus.OK
     else:
         return {"error": f"ntf id {id} not found"}, HTTPStatus.NOT_FOUND

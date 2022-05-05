@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from app.configs.database import db
 from app.models.users_model import UsersModel
 from flask import jsonify, request
@@ -49,11 +50,15 @@ def create_user():
 def read_users():
     session: Session = db.session
     users_list = session.query(UsersModel).all()
-
+    users = []
+    for user in users_list:
+        user_dict = asdict(user)
+        user_dict["NFT's"] = [item.name for item in user.nfts_owner]
+        users.append(user_dict)
     if users_list == []:
         return {"Error": "There are no users on database"}, 404
 
-    return jsonify(users_list), 200
+    return jsonify(users), 200
 
 
 # ========================================================================================
@@ -63,11 +68,13 @@ def read_user():
 
     user = get_jwt_identity()
     selected_user = UsersModel.query.get(user["id"])
-
+    
     if not selected_user:
         return {"Error": "User not found"}, 404
-
-    return jsonify(selected_user)
+    dict_user = asdict(selected_user)
+    dict_user["NFT's"] = [item.name for item in selected_user.nfts_owner]
+    
+    return jsonify(dict_user)
 
 
 # ========================================================================================

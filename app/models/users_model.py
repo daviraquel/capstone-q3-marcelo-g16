@@ -37,7 +37,7 @@ class UsersModel(db.Model):
     last_deposit = Column(DateTime, default=now)
     create_date = Column(DateTime, default=now)
     update_date = Column(DateTime, default=now)
-
+    
     # adicionar relacionamento
     # outro = relationship("OutroModel",backref(...))
 

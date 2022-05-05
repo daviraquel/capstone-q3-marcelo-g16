@@ -36,3 +36,4 @@ class NftsModel(db.Model):
     created_at = Column(DateTime, default=datetime.now())
 
     creator_info = relationship("UsersModel", foreign_keys=[creator], backref="nfts")
+    owner_info = relationship("UsersModel", foreign_keys=[owner], backref="nfts_owner")
