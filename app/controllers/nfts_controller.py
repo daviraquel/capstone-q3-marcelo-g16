@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from flask import request, jsonify
 from app.configs.database import db
 from sqlalchemy.orm import Session
@@ -62,8 +63,13 @@ def create_nft():
 def read_nfts():
     try:
         read_all = session.query(NftsModel).all()
-
-        return jsonify(read_all), HTTPStatus.OK
+        nfts = []
+        for i in read_all:
+            nft = asdict(i)
+            creator = i.creator_info.__dict__
+            nft['creator'] = {'name':creator['user_name'], 'email':creator['email']}
+            nfts.append(nft)
+        return jsonify(nfts), HTTPStatus.OK
     except:
         return [], HTTPStatus.OK
 
@@ -73,7 +79,10 @@ def read_nft(id):
     read_one = session.query(NftsModel).filter(NftsModel.id == id).first()
     
     if read_one:
-        return jsonify(read_one), HTTPStatus.OK
+        nft = asdict(read_one)
+        creator = read_one.creator_info.__dict__
+        nft['creator'] = {'name':creator['user_name'], 'email':creator['email']}
+        return jsonify(nft), HTTPStatus.OK
     else:
         return {"error": f"ntf id {id} not found"}, HTTPStatus.NOT_FOUND
 
