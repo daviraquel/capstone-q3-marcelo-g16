@@ -20,7 +20,7 @@ class NftsModel(db.Model):
     collection: int
     image: str
     created_at: str
-    creator_info: str
+    # creator_info: str
 
     __tablename__ = "nfts"
 

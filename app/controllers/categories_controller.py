@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from flask import request, jsonify
 from app.configs.database import db
 from app.models.categories_model import CategoriesModel
@@ -47,17 +48,19 @@ def read_categories():
 # ========================================================================================
 def read_category(name: str):
     session: Session = db.session
+    
 
-    category = (
+    category:CategoriesModel = (
         session.query(CategoriesModel)
         .filter(CategoriesModel.name == name.title())
         .first()
     )
-
+    dict_category = asdict(category)
+    dict_category['collection'] = category.collections
     if not category:
         return {"Error": "Category not found"}, 404
 
-    return jsonify(category), 200
+    return jsonify(dict_category), 200
 
 
 # ========================================================================================
