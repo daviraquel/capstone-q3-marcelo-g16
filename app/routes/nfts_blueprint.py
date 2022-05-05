@@ -8,7 +8,7 @@ bp = Blueprint("bp_nfts", __name__, url_prefix="/nfts")
 
 # declarar métodos
 bp.post("")(create_nft)
-bp.get("")(read_nft)
-bp.get("/<int:id>")(read_nfts)
+bp.get("")(read_nfts)
+bp.get("/<int:id>")(read_nft)
 bp.patch("/<int:id>")(update_nft)
 bp.delete("/<int:id>")(delete_nft)
