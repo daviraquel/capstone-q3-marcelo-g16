@@ -9,7 +9,7 @@ URL base: https://capstone-q3-marcelo-g16.herokuapp.com/api
 
 # Endpoints
 
-## POST /users
+## POST /users/signup
 
 Deverá fazer o registro de um novo usuário pela inserção dos dados na tabela users.
 
@@ -80,6 +80,52 @@ Resposta:
 }
 ```
 
+## POST /users/signin
+
+Deverá fazer o login do usuário.
+
+Requisição padrão:
+
+```json
+{
+  "email": "john@mail.com",
+  "password": "abcd1234"
+}
+```
+
+Resposta:
+**201 - CREATED**
+
+```json
+{
+	"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+### **Possíveis erros:**
+
+Email não cadastrado na API.
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+	"detail": "this email is not registered"
+}
+```
+
+Senha ou email incorreta.
+
+Resposta:
+**401 - UNAUTHORIZED**
+
+```json
+{
+	"detail": "email and password missmatch"
+}
+```
+
 ## GET /users
 
 Retorna todos os usuários cadastrados na API.
@@ -119,30 +165,31 @@ Resposta:
 }
 ```
 
-## GET /users/\<user_email:str\>
+## GET /users/profile
 
-Rota para buscar um usuário específico com base no seu email.
-
-```
-GET /users/john@mail.com
-```
+Rota retorna a informação do usuário logado.
 
 Resposta:
 **200 - OK**
 
 ```json
 {
-  "id": 1,
-  "user_name": "john_doe",
-  "email": "john@mail.com",
-  "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-  "update_date": null
+	"id": 1,
+	"user_name": "John_Test",
+	"email": "johntest@mail.com",
+	"balance": "0",
+	"last_deposit": null,
+	"create_date": "Wed, 04 May 2022 19:00:13 GMT",
+	"update_date": "Wed, 04 May 2022 19:00:13 GMT",
+	"NFT's": [
+		"john_doe"
+	]
 }
 ```
 
 ### **Possíveis erros:**
 
-Email não cadastrado na API.
+Usuário não cadastrado na API.
 
 Resposta:
 **404 - NOT FOUND**
@@ -153,15 +200,11 @@ Resposta:
 }
 ```
 
-## PATCH /users/\<user_email:str\>
+## PATCH /users/
 
-Rota para alterar os dados de um usuário específico com base no seu email. O usuário pode alterar a senha e o email mas não o user_name.
+Rota para alterar os dados de um usuário logado. O usuário pode alterar a senha e o email mas não o user_name.
 
 Requisição padrão:
-
-```
-PATCH /users/john@mail.com
-```
 
 ```json
 {
@@ -175,30 +218,19 @@ Resposta:
 
 ```json
 {
-  "id": 1,
-  "user_name": "John Doe",
-  "email": "test@mail.com",
-  "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-  "update_date": "Mon, 02 May 2022 16:03:08 GMT"
+	"id": 1,
+	"user_name": "John_Test",
+	"email": "test@mail.com",
+	"balance": "0",
+	"last_deposit": null,
+	"create_date": "Wed, 04 May 2022 19:00:13 GMT",
+	"update_date": "Thu, 05 May 2022 20:28:39 GMT"
 }
 ```
 
 ### **Possíveis erros:**
 
-Email não cadastrado na API.
-
-Requisição:
-
-```
-PATCH /users/juanito@mail.com
-```
-
-```json
-{
-  "email": "test@mail.com",
-  "password": "123456"
-}
-```
+Usuário não cadastrado na API.
 
 Resposta:
 **404 - NOT FOUND**
@@ -211,17 +243,6 @@ Resposta:
 
 Email para alteração já cadastrado em outro usuário.
 
-```
-PATCH /users/john@mail.com
-```
-
-```json
-{
-  "email": "jane@mail.com",
-  "password": "123456"
-}
-```
-
 Resposta:
 **409 - CONFLICT**
 
@@ -231,28 +252,16 @@ Resposta:
 }
 ```
 
-## DELETE /users/\<user_email:str\>
+## DELETE /users/
 
-Rota para deletar os dados de um usuário específico com base no seu email.
-
-Requisição padrão:
-
-```
-DELETE /users/john@mail.com
-```
+Rota para deletar os dados de um usuário logado.
 
 Resposta:
 **204 - NO CONTENT**
 
 ### **Possíveis erros:**
 
-Email não cadastrado na API.
-
-Requisição:
-
-```
-DELETE /users/juanito@mail.com
-```
+Usuário não cadastrado na API.
 
 Resposta:
 **404 - NOT FOUND**
@@ -265,15 +274,13 @@ Resposta:
 
 ## POST /nfts
 
-Deverá fazer o registro de uma nova NFT pela inserção dos dados na tabela nfts. A requisição deve contar o id do criador da NFT, id do owner, nome da NFT, valor para negociação, um booleano indicando se estará disponível para venda ou não, uma descrição, um arquivo de imagem e o id da coleção a que pertence.
+Deverá fazer o registro de uma nova NFT pela inserção dos dados na tabela nfts. A requisição deve contar o nome da NFT, valor para negociação, um booleano indicando se estará disponível para venda ou não, uma descrição, um arquivo de imagem e o id da coleção a que pertence.
 
 Requisição padrão:
 
 ```json
 {
-  "creator": 1,
-  "owner": 1,
-  "name": "john_doe",
+	"name": "john_doe",
   "value": 2.4,
   "for_sale": true,
   "description": "NFT para teste da API",
@@ -287,51 +294,29 @@ Resposta:
 
 ```json
 {
-  "id": 2,
-  "creator": 1,
-  "owner": 1,
-  "name": "john_doe",
-  "for_sale": true,
-  "value": "2.4",
-  "description": "nft para teste da api",
-  "collection": 1,
-  "image": "image.png",
-  "created_at": "Mon, 02 May 2022 17:28:42 GMT",
-  "creator_info": {
-    "id": 1,
-    "user_name": "John Doe",
-    "email": "test@mail.com",
-    "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-    "update_date": "Mon, 02 May 2022 16:03:08 GMT"
-  }
+	"id": 3,
+	"creator": 1,
+	"owner": 1,
+	"name": "john_doe",
+	"for_sale": true,
+	"value": "2.4",
+	"description": "nft para teste da api",
+	"collection": 1,
+	"image": "image.png",
+	"created_at": "Thu, 05 May 2022 16:17:33 GMT"
 }
 ```
 
 ### **Possíveis erros:**
 
-id do creator, owner ou collection não registrada na API.
-
-Requisição:
-
-```json
-{
-  "creator": 44,
-  "owner": 1,
-  "name": "john_doe",
-  "value": 2.4,
-  "for_sale": true,
-  "description": "NFT para teste da API",
-  "image": "image.png",
-  "collection": 1
-}
-```
+collection não registrada na API.
 
 Resposta:
-**409 - CONFLICT**
+**400 - BAD REQUEST**
 
 ```json
 {
-  "error": "insert a creator, owner or collection that is already registered."
+	"error": "insert a collection already registered."
 }
 ```
 
@@ -341,12 +326,11 @@ Requisição:
 
 ```json
 {
-  "creator": 1,
-  "owner": 1,
-  "name": "john_doe",
   "value": 2.4,
   "for_sale": true,
-  "description": "NFT para teste da API"
+  "description": "NFT para teste da API",
+  "image": "image.png",
+  "collection": 3
 }
 ```
 
@@ -355,19 +339,15 @@ Resposta:
 
 ```json
 {
-  "error": {
-    "mandatory keys": [
-      "creator",
-      "owner",
-      "name",
-      "value",
-      "for_sale",
-      "description",
-      "image",
-      "collection"
-    ],
-    "missing keys": ["image", "collection"]
-  }
+	"error": "wrong keys",
+	"expected_keys": [
+		"name",
+		"value",
+		"for_sale",
+		"description",
+		"image",
+		"collection"
+	]
 }
 ```
 
@@ -380,44 +360,36 @@ Resposta:
 
 ```json
 [
-  {
-    "id": 1,
-    "creator": 1,
-    "owner": 1,
-    "name": "john_doe",
-    "for_sale": true,
-    "value": "2.4",
-    "description": "nft para teste da api",
-    "collection": 1,
-    "image": "image.png",
-    "created_at": "Mon, 02 May 2022 17:28:42 GMT",
-    "creator_info": {
-      "id": 1,
-      "user_name": "John Doe",
-      "email": "test@mail.com",
-      "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-      "update_date": "Mon, 02 May 2022 16:03:08 GMT"
-    }
-  },
-  {
-    "id": 2,
-    "creator": 1,
-    "owner": 1,
-    "name": "john_doe2",
-    "for_sale": true,
-    "value": "2.4",
-    "description": "nft para teste da api",
-    "collection": 1,
-    "image": "image.png",
-    "created_at": "Mon, 02 May 2022 17:28:42 GMT",
-    "creator_info": {
-      "id": 1,
-      "user_name": "John Doe",
-      "email": "test@mail.com",
-      "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-      "update_date": "Mon, 02 May 2022 16:03:08 GMT"
-    }
-  }
+	{
+		"id": 2,
+		"creator": {
+			"name": "John_Doe",
+			"email": "john@mail.com"
+		},
+		"owner": 2,
+		"name": "john_doe",
+		"for_sale": true,
+		"value": "2.4",
+		"description": "nft para teste da api",
+		"collection": 1,
+		"image": "image.png",
+		"created_at": "Wed, 04 May 2022 15:10:46 GMT"
+	},
+	{
+		"id": 3,
+		"creator": {
+			"name": "John_Test",
+			"email": "test@mail.com"
+		},
+		"owner": 1,
+		"name": "john_doe",
+		"for_sale": true,
+		"value": "2.4",
+		"description": "nft para teste da api",
+		"collection": 1,
+		"image": "image.png",
+		"created_at": "Thu, 05 May 2022 16:17:33 GMT"
+	}
 ]
 ```
 
@@ -426,7 +398,7 @@ Resposta:
 Rota para buscar uma NFT específica com base no seu id.
 
 ```
-GET /nfts/2
+GET api/nfts/2
 ```
 
 Resposta:
@@ -434,23 +406,19 @@ Resposta:
 
 ```json
 {
-  "id": 2,
-  "creator": 1,
-  "owner": 1,
-  "name": "john_doe",
-  "for_sale": true,
-  "value": "2.4",
-  "description": "nft para teste da api",
-  "collection": 1,
-  "image": "image.png",
-  "created_at": "Mon, 02 May 2022 17:28:42 GMT",
-  "creator_info": {
-    "id": 1,
-    "user_name": "John Doe",
-    "email": "test@mail.com",
-    "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-    "update_date": "Mon, 02 May 2022 16:03:08 GMT"
-  }
+	"id": 2,
+	"creator": {
+		"name": "John_Doe",
+		"email": "john@mail.com"
+	},
+	"owner": 2,
+	"name": "john_doe",
+	"for_sale": true,
+	"value": "2.4",
+	"description": "nft para teste da api",
+	"collection": 1,
+	"image": "image.png",
+	"created_at": "Wed, 04 May 2022 15:10:46 GMT"
 }
 ```
 
@@ -493,23 +461,16 @@ Resposta:
 
 ```json
 {
-  "id": 2,
-  "creator": 1,
-  "owner": 1,
-  "name": "john_doe",
-  "for_sale": false,
-  "value": "4.5",
-  "description": "nft para teste da api",
-  "collection": 1,
-  "image": "image.png",
-  "created_at": "Mon, 02 May 2022 17:28:42 GMT",
-  "creator_info": {
-    "id": 1,
-    "user_name": "John Doe",
-    "email": "test@mail.com",
-    "create_date": "Mon, 02 May 2022 13:01:51 GMT",
-    "update_date": "Mon, 02 May 2022 16:03:08 GMT"
-  }
+	"id": 3,
+	"creator": 1,
+	"owner": 1,
+	"name": "john_doe",
+	"for_sale": false,
+	"value": "4.5",
+	"description": "nft para teste da api",
+	"collection": 1,
+	"image": "image.png",
+	"created_at": "Thu, 05 May 2022 16:17:33 GMT"
 }
 ```
 
@@ -590,6 +551,17 @@ Resposta:
 }
 ```
 
+Usuário logado não é o dono da NFT a ser alterada.
+
+Resposta:
+**401 - UNAUTHORIZED**
+
+```json
+{
+	"detail": "only the creator of the NFT can update"
+}
+```
+
 ## DELETE /nfts/\<id:int\>
 
 Rota para deletar os dados de uma NFT específica com base no id.
@@ -619,6 +591,17 @@ Resposta:
 ```json
 {
   "error": "nft id 44 not found"
+}
+```
+
+Usuário logado não é o dono da NFT a ser deletada.
+
+Resposta:
+**401 - UNAUTHORIZED**
+
+```json
+{
+	"detail": "only the creator of the NFT can delete"
 }
 ```
 
@@ -713,7 +696,7 @@ Resposta:
 
 ### **Possíveis erros:**
 
-Sem usuários cadastrados na API.
+Sem collections cadastradas na API.
 
 Resposta:
 **404 - NOT FOUND**
@@ -764,7 +747,7 @@ Rota para alterar a descrição de uma collection.
 Requisição padrão:
 
 ```
-PATCH /users/teste
+PATCH api/collections/teste
 ```
 
 ```json
@@ -792,7 +775,7 @@ Nome não cadastrado na API.
 Requisição:
 
 ```
-PATCH /users/outronome
+PATCH api/collections/outronome
 ```
 
 Resposta:
@@ -831,12 +814,12 @@ Resposta:
 
 ## DELETE /collections/\<name:str\>
 
-Rota para deletar os dados de um usuário específico com base no seu email.
+Rota para deletar uma collection com base no seu nome.
 
 Requisição padrão:
 
 ```
-DELETE /collections/teste
+DELETE api/collections/teste
 ```
 
 Resposta:
@@ -844,12 +827,12 @@ Resposta:
 
 ### **Possíveis erros:**
 
-Email não cadastrado na API.
+collection não cadastrada na API.
 
 Requisição:
 
 ```
-DELETE /users/outronome
+DELETE api/collections/outronome
 ```
 
 Resposta:
@@ -869,5 +852,218 @@ Resposta:
 ```json
 {
 	"detail": "only the creator of the collection can delete"
+}
+```
+
+## POST /categories
+
+Deverá fazer o registro de uma nova categoria. A requisição deve contar nome da categoria e sua descrição.
+
+Requisição padrão:
+
+```json
+{
+	"name": "teste",
+	"description": "teste"
+}
+```
+
+Resposta:
+**201 - CREATED**
+
+```json
+{
+	"id": 1,
+	"name": "Teste",
+	"description": "teste"
+}
+```
+
+### **Possíveis erros:**
+
+Objeto com campos faltando ou em excesso.
+
+Formato da requisição:
+
+```json
+{
+	"name": "teste"
+}
+```
+
+Resposta:
+**400 - BAD REQUEST**
+
+```json
+{
+	"msg": {
+		"expected keys": [
+			"name",
+			"description"
+		],
+		"entry keys": [
+			"name"
+		]
+	}
+}
+```
+
+## GET /categories
+
+Retorna todos as collections cadastrados na API.
+
+Resposta:
+**200 - OK**
+
+```json
+[
+	{
+		"id": 1,
+		"name": "Teste",
+		"description": "teste"
+	},
+	{
+		"id": 2,
+		"name": "Teste 2",
+		"description": "teste 2"
+	}
+]
+```
+
+### **Possíveis erros:**
+
+Sem categorias cadastradas na API.
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+  "Error": "There are no categories on database"
+}
+```
+
+## GET /categories/\<name:str\>
+
+Rota para buscar uma categoria específica com base no seu nome.
+
+```
+GET /users/teste
+```
+
+Resposta:
+**200 - OK**
+
+```json
+{
+	"id": 1,
+	"name": "Teste",
+	"description": "teste",
+	"collection": []
+}
+```
+
+### **Possíveis erros:**
+
+Nome da collection não cadastrada na API.
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+	"Error": "Category not found"
+}
+```
+
+## PATCH /categories/\<name:str\>
+
+Rota para alterar a descrição de uma categoria.
+
+Requisição padrão:
+
+```
+PATCH api/categories/teste
+```
+
+```json
+{
+	"description": "mudei a descrição"
+}
+```
+
+Resposta:
+**200 - OK**
+
+```json
+{
+	"id": 1,
+	"name": "Teste",
+	"description": "mudei a descrição"
+}
+```
+
+### **Possíveis erros:**
+
+Nome não cadastrado na API.
+
+Requisição:
+
+```
+PATCH api/categories/outronome
+```
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+	"Error": "Category not found"
+}
+```
+
+Faltando a chave "description" na requisição
+
+Resposta:
+**400 - BAD REQUEST**
+
+```json
+{
+	"msg": {
+		"expected key": "description",
+		"entry keys": []
+	}
+}
+```
+
+## DELETE /categories/\<name:str\>
+
+Rota para deletar uma categoria com base no seu nome.
+
+Requisição padrão:
+
+```
+DELETE api/categories/teste
+```
+
+Resposta:
+**204 - NO CONTENT**
+
+### **Possíveis erros:**
+
+categoria não cadastrada na API.
+
+Requisição:
+
+```
+DELETE api/categories/outronome
+```
+
+Resposta:
+**404 - NOT FOUND**
+
+```json
+{
+	"Error": "Category not found"
 }
 ```

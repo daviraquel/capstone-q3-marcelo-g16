@@ -13,7 +13,6 @@ def create_category():
     session: Session = db.session
 
     data = request.get_json()
-    data["name"] = data["name"].title()
 
     expected_keys = ["name", "description"]
     entry_keys = [k for k in data.keys()]
@@ -21,6 +20,7 @@ def create_category():
     if not expected_keys == entry_keys:
         return {"msg": {"expected keys": expected_keys, "entry keys": entry_keys}}, 400
 
+    data["name"] = data["name"].title()
     new_category = CategoriesModel(**data)
 
     try:
@@ -48,17 +48,16 @@ def read_categories():
 # ========================================================================================
 def read_category(name: str):
     session: Session = db.session
-    
 
-    category:CategoriesModel = (
+    category: CategoriesModel = (
         session.query(CategoriesModel)
         .filter(CategoriesModel.name == name.title())
         .first()
     )
-    dict_category = asdict(category)
-    dict_category['collection'] = category.collections
     if not category:
         return {"Error": "Category not found"}, 404
+    dict_category = asdict(category)
+    dict_category["collection"] = category.collections
 
     return jsonify(dict_category), 200
 
@@ -76,7 +75,6 @@ def update_category(name: str):
         .filter(CategoriesModel.name == name.title())
         .first()
     )
-    print("@" * 100, selected_category)
     if not selected_category:
         return {"Error": "Category not found"}, 404
 
